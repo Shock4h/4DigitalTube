@@ -1,0 +1,78 @@
+#include "stm32f10x.h"                  // Device header
+#include "LED8B.H"
+#include "Delay.h"
+
+u8 num[10] = {0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xF8,0x80,0x90};
+u8 wei[4] = {0x01,0x02,0x04,0x08};
+int main(void)
+{
+	LED8B_Init();
+	int i,k;
+
+	while(1)
+	{
+	for(k=0;k<4;k++)
+	{
+	for (i = 0; i < 10; i ++)
+	{
+	LED8B_Write( num[i] ); 
+	LED8B_Write( wei[k] ); 
+	Delay_ms (200);
+	}
+	
+
+	}
+	}
+	return 0;
+}
+	
+  
+  #include "stm32f10x.h"                  // Device header
+#include "LED8B.h"
+
+void LED8B_Init(void)
+{
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	SHCP_L;
+	STCP_L;
+	DS_L;
+	
+}
+
+
+void LED8B_Write(u8 dat)
+{
+	for (u8 i = 0; i < 8; i ++)
+	{
+		(dat<<i)& 0x80 ? DS_H : DS_L;
+		SHCP_H;
+		SHCP_L;
+	}
+	STCP_H;
+	STCP_L;
+	
+}
+
+
+
+#ifndef LED8B_H
+#define LED8B_H
+
+#define SHCP_H GPIO_SetBits(GPIOB,GPIO_Pin_14)
+#define SHCP_L GPIO_ResetBits(GPIOB,GPIO_Pin_14)
+#define STCP_H GPIO_SetBits(GPIOB,GPIO_Pin_13)
+#define STCP_L GPIO_ResetBits(GPIOB,GPIO_Pin_13)
+#define DS_H GPIO_SetBits(GPIOB,GPIO_Pin_12)
+#define DS_L GPIO_ResetBits(GPIOB,GPIO_Pin_12)
+
+void LED8B_Init(void);
+void LED8B_Write(u8 dat);
+
+#endif
+
